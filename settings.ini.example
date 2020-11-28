@@ -1,0 +1,5 @@
+This is the template for settings.ini, when you add a config value, add it here so it can be updated appropriately
+by the other developer
+[settings]
+SECRET_KEY=*&%%#$#$mkdmsidjsjdij#$#%^&jncidsoi#$#6
+DEBUG=True

@@ -1,0 +1,27 @@
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+*.py[cod]
+*\.idea*
+*\.vscode*
+!.gitignore
+*.pyc
+db.sqlite3
+*.ini
+**.ini
+**/node_modules*
+!logging.ini
