@@ -48,7 +48,12 @@ class RentalLine(models.Model):
         Calculates the pricing for a book borrowed, per day rental charge is $1
         :return:
         """
-        rate = 1
+        # Calculate the rate based on the book type
+        if self.book.type in [Book.BookTypes.REULAR, Book.BookTypes.NOVEL]:
+            rate = 1.5
+        else:
+            rate = 3
+
         if not self.returned_at:
             difference = timezone.now() - self.rental.created_at
         else:

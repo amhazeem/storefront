@@ -23,7 +23,12 @@ class InlineFormset(forms.models.BaseInlineFormSet):
                     raise forms.ValidationError(
                         'Quantity must be greater than 1')
                 stock_quantity = book.in_stock
-                if stock_quantity < form.cleaned_data['quantity']:
+                current_quantity = form.cleaned_data['quantity']
+
+                if book.pk:
+                    stock_quantity = stock_quantity + current_quantity
+
+                if stock_quantity  < current_quantity:
                     if stock_quantity == 0:
                         errors.append(f'{book.title} is out of stock')
                     else:
