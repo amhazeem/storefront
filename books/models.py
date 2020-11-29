@@ -4,8 +4,15 @@ from django.db.models import Sum
 from shared import TimeStampedModel
 
 
+class BookTypes(models.TextChoices):
+    REULAR = 'regular', 'REGULAR'
+    FICTION = 'fiction', 'FICTION'
+    NOVEL = 'novel', 'NOVEL'
+
 class Book(TimeStampedModel):
+    BookTypes = BookTypes
     title = models.CharField(max_length=255)
+    type = models.CharField(max_length=10, choices=BookTypes.choices, default=BookTypes.REULAR)
     description = models.TextField()
     quantity = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)

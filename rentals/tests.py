@@ -11,8 +11,8 @@ from shared import get_random_str
 def create_customer(first_name, **kwargs):
     return Customer.objects.create(first_name=first_name  + get_random_str(), **kwargs)
 
-def create_book(title="Book 1", description="This is a sample book written by XY"):
-    return Book.objects.create(title=title + get_random_str(), description=description)
+def create_book(title="Book 1", description="This is a sample book written by XY", book_type=Book.BookTypes.REULAR):
+    return Book.objects.create(title=title + get_random_str(), description=description, type=book_type)
 
 def create_rental(customer=None, books=None, **kwargs):
     if not customer:
@@ -57,10 +57,25 @@ class RentalTest(TestCase):
         self.assertTrue(isinstance(obj, Rental))
         self.assertEqual(obj.lines.first().__str__(), book.__str__())
 
-    def test_rental_price_of_returned_book(self):
-        expected_price = 5
+    def test_rental_price_of_returned_regular_book(self):
+        expected_price = 7.5
         tomorrow = timezone.now() + timedelta(days=5)
-        obj = create_rental(books=[],returned_at=tomorrow)
+        obj = create_rental(returned_at=tomorrow)
+        self.assertTrue(isinstance(obj, Rental))
+        self.assertEqual(expected_price, obj.price)
+
+    def test_rental_price_of_returned_novel_book(self):
+        expected_price = 7.5
+        tomorrow = timezone.now() + timedelta(days=5)
+        obj = create_rental(returned_at=tomorrow)
+        self.assertTrue(isinstance(obj, Rental))
+        self.assertEqual(expected_price, obj.price)
+
+    def test_rental_price_of_returned_fiction_book(self):
+        expected_price = 15
+        tomorrow = timezone.now() + timedelta(days=5)
+        fiction_book = create_book(book_type=Book.BookTypes.FICTION)
+        obj = create_rental(books=[fiction_book],returned_at=tomorrow)
         self.assertTrue(isinstance(obj, Rental))
         self.assertEqual(expected_price, obj.price)
 
@@ -72,7 +87,7 @@ class RentalTest(TestCase):
         self.assertEqual(expected_price, rental.price)
 
     def test_rental_price_of_non_returned_book(self):
-        expected_price = 1
+        expected_price = 1.5
         rental = create_rental()
         self.assertTrue(isinstance(rental, Rental))
         self.assertEqual(expected_price, rental.price)
