@@ -23,5 +23,5 @@ jobs:
       run: pip install -r requirements.txt
 
     - name: Test with Coverage
-      run: coverage run manage.py test -v 2
+      run: python3 manage.py test
 
