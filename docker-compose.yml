@@ -11,6 +11,4 @@ services:
     ports:
       - "8008:8008"
 
-  network:
-    default:
 
