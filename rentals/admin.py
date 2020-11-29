@@ -14,7 +14,10 @@ class InlineFormset(forms.models.BaseInlineFormSet):
         book_ids = []
         errors = []
         for form in self.forms:
-            book = form.cleaned_data['book']
+            book = form.cleaned_data.get('book', None)
+            if not book:
+                raise forms.ValidationError(
+                    'Please select a valid book')
             try:
                 if form.cleaned_data['quantity'] < 1:
                     raise forms.ValidationError(
@@ -43,8 +46,8 @@ class LineItemInline(admin.TabularInline):
     model = RentalLine
     verbose_name = "Books Rented"
     verbose_name_plural = "Books Rented"
-    extra = 1
     formset = InlineFormset
+    extra = 0
 
 @admin.register(Rental)
 class RentalAdmin(admin.ModelAdmin):
