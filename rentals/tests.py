@@ -22,10 +22,14 @@ def create_rental(customer=None, books=None, **kwargs):
     if not isinstance(books,list):
         return
     rental=Rental.objects.create(customer=customer,)
+
+    force_empty_books = kwargs.pop('force_empty_books',None)
+    if force_empty_books:
+        books = []
     for book in books:
         RentalLine.objects.create(
             rental_id=rental.pk,
-            book = book ,**kwargs
+            book = book,**kwargs
         )
     rental.refresh_from_db()
 
@@ -47,10 +51,23 @@ class RentalTest(TestCase):
         self.assertTrue(isinstance(obj, Rental))
         self.assertIsInstance(obj.__str__(), str)
 
+    def test_rental_line_creation(self):
+        book = create_book(title='Sample Rental Book')
+        obj = create_rental(books=[book])
+        self.assertTrue(isinstance(obj, Rental))
+        self.assertEqual(obj.lines.first().__str__(), book.__str__())
+
     def test_rental_price_of_returned_book(self):
         expected_price = 5
         tomorrow = timezone.now() + timedelta(days=5)
-        rental = create_rental(returned_at=tomorrow)
+        obj = create_rental(books=[],returned_at=tomorrow)
+        self.assertTrue(isinstance(obj, Rental))
+        self.assertEqual(expected_price, obj.price)
+
+    def test_empty_order_is_zero(self):
+        expected_price = 0
+        tomorrow = timezone.now() + timedelta(days=5)
+        rental = create_rental(returned_at=tomorrow, force_empty_books =True)
         self.assertTrue(isinstance(rental, Rental))
         self.assertEqual(expected_price, rental.price)
 
