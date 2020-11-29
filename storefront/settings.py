@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'books.apps.BooksConfig',
     'rentals.apps.RentalsConfig',
+    'coverage'
 ]
 
 MIDDLEWARE = [
