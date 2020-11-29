@@ -22,10 +22,10 @@ class Rental(TimeStampedModel):
     @property
     def price(self):
         # Gets the price of the entire order using the lines attached
-        if not self.lines.exists():
+        if not self.lines.filter(returned_at__isnull=False).exists():
             return 0
         total = 0
-        for order in self.lines.all():
+        for order in self.lines.filter(returned_at__isnull=False):
             total += order.price
         return total
 
@@ -48,15 +48,25 @@ class RentalLine(models.Model):
         Calculates the pricing for a book borrowed, per day rental charge is $1
         :return:
         """
-        # Calculate the rate based on the book type
-        if self.book.type in [Book.BookTypes.REULAR, Book.BookTypes.NOVEL]:
-            rate = 1.5
-        else:
-            rate = 3
 
         if not self.returned_at:
             difference = timezone.now() - self.rental.created_at
         else:
             difference = self.returned_at - self.rental.created_at
+        # Calculate the rate based on the book type
         days = difference.days + 1
-        return days * rate * self.quantity
+        if self.book.type == Book.BookTypes.FICTION:
+            rate = 3
+            return days * rate * self.quantity
+        else:
+            rate = 1.5
+            discounted_days = 2 if self.book.type == self.book.BookTypes.REULAR else 3
+            days_left = days - discounted_days
+            base_amount = 2 if self.book.type == self.book.BookTypes.REULAR else 4.5
+            if days_left >= 0:
+                return discounted_days * 1 * self.quantity + \
+                       (rate * days_left * self.quantity) # Remaining
+            else:
+                return base_amount
+
+

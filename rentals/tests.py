@@ -26,6 +26,7 @@ def create_rental(customer=None, books=None, **kwargs):
     force_empty_books = kwargs.pop('force_empty_books',None)
     if force_empty_books:
         books = []
+
     for book in books:
         RentalLine.objects.create(
             rental_id=rental.pk,
@@ -57,17 +58,33 @@ class RentalTest(TestCase):
         self.assertTrue(isinstance(obj, Rental))
         self.assertEqual(obj.lines.first().__str__(), book.__str__())
 
-    def test_rental_price_of_returned_regular_book(self):
-        expected_price = 7.5
-        tomorrow = timezone.now() + timedelta(days=5)
+    def test_rental_price_of_returned_regular_book_greater_than_2days(self):
+        expected_price = 5
+        tomorrow = timezone.now() + timedelta(days=4)
         obj = create_rental(returned_at=tomorrow)
         self.assertTrue(isinstance(obj, Rental))
         self.assertEqual(expected_price, obj.price)
 
-    def test_rental_price_of_returned_novel_book(self):
-        expected_price = 7.5
-        tomorrow = timezone.now() + timedelta(days=5)
+    def test_rental_price_of_returned_regular_book_lesser_than_2days(self):
+        expected_price = 2
+        tomorrow = timezone.now() + timedelta(days=1)
         obj = create_rental(returned_at=tomorrow)
+        self.assertTrue(isinstance(obj, Rental))
+        self.assertEqual(expected_price, obj.price)
+
+    def test_rental_price_of_returned_novel_book_lesser_than_3days(self):
+        expected_price = 4.5
+        tomorrow = timezone.now() + timedelta(days=2)
+        book = create_book(book_type=Book.BookTypes.NOVEL)
+        obj = create_rental(books=[book], returned_at=tomorrow)
+        self.assertTrue(isinstance(obj, Rental))
+        self.assertEqual(expected_price, obj.price)
+
+    def test_rental_price_of_returned_novel_book_gte_than_3days(self):
+        expected_price = 4.5
+        tomorrow = timezone.now() + timedelta(days=4)
+        book = create_book(book_type=Book.BookTypes.NOVEL)
+        obj = create_rental(books=[book], returned_at=tomorrow)
         self.assertTrue(isinstance(obj, Rental))
         self.assertEqual(expected_price, obj.price)
 
@@ -83,12 +100,6 @@ class RentalTest(TestCase):
         expected_price = 0
         tomorrow = timezone.now() + timedelta(days=5)
         rental = create_rental(returned_at=tomorrow, force_empty_books =True)
-        self.assertTrue(isinstance(rental, Rental))
-        self.assertEqual(expected_price, rental.price)
-
-    def test_rental_price_of_non_returned_book(self):
-        expected_price = 1.5
-        rental = create_rental()
         self.assertTrue(isinstance(rental, Rental))
         self.assertEqual(expected_price, rental.price)
 
