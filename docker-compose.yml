@@ -9,7 +9,7 @@ services:
     volumes:
       - .:/storefront:z
     ports:
-      - "8000:8000"
+      - "8008:8008"
 
   network:
     default:
