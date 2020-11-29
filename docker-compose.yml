@@ -4,7 +4,7 @@ services:
 
   web:
     build: .
-    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8008"
+    command: bash -c "mkdir logs && python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8008"
     container_name: storefront
     volumes:
       - .:/storefront:z
