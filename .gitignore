@@ -25,5 +25,5 @@ db.sqlite3
 **.ini
 **/node_modules*
 !logging.ini
-**.log
-*.log
+!/logs
+/logs/*.log
