@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from books.models import Book
-from rentals.models import Customer, Rental
+from rentals.models import Customer, Rental, RentalLine
 from shared import get_random_str
 
 
@@ -14,12 +14,22 @@ def create_customer(first_name, **kwargs):
 def create_book(title="Book 1", description="This is a sample book written by XY"):
     return Book.objects.create(title=title + get_random_str(), description=description)
 
-def create_rental(customer=None, book=None, **kwargs):
+def create_rental(customer=None, books=None, **kwargs):
     if not customer:
         customer = create_customer('Sample Customer')
-    if not book:
-        book = create_book()
-    return Rental.objects.create(book=book, customer=customer, **kwargs)
+    if not books:
+        books = [create_book()]
+    if not isinstance(books,list):
+        return
+    rental=Rental.objects.create(customer=customer,)
+    for book in books:
+        RentalLine.objects.create(
+            rental_id=rental.pk,
+            book = book ,**kwargs
+        )
+    rental.refresh_from_db()
+
+    return rental
 
 
 class CustomerTest(TestCase):
@@ -35,7 +45,7 @@ class RentalTest(TestCase):
     def test_rental_creation(self):
         obj = create_rental()
         self.assertTrue(isinstance(obj, Rental))
-        self.assertEqual(obj.__str__(), obj.book.__str__())
+        self.assertIsInstance(obj.__str__(), str)
 
     def test_rental_price_of_returned_book(self):
         expected_price = 5

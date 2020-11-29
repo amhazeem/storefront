@@ -15,9 +15,30 @@ class Customer(TimeStampedModel):
         return self.first_name
 
 class Rental(TimeStampedModel):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='rent_history', help_text='Select a book')
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    notes = models.TextField(**optional)
+
+    @property
+    def price(self):
+        # Gets the price of the entire order using the lines attached
+        if not self.lines.exists():
+            return  0
+        total = 0
+        for order in self.lines.all():
+            total += order.price
+        return total
+
+
+    def __str__(self):
+        return self.customer.__str__()
+
+class RentalLine(models.Model):
+    rental = models.ForeignKey(Rental, on_delete=models.CASCADE, related_name='lines', help_text='Select a book')
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='rent_history', help_text='Select a book')
     returned_at = models.DateTimeField(**optional)
+
+
+
 
     @property
     def price(self):
@@ -27,13 +48,8 @@ class Rental(TimeStampedModel):
         """
         rate = 1
         if not self.returned_at:
-            difference = timezone.now() - self.created_at
+            difference = timezone.now() - self.rental.created_at
         else:
-            difference = self.returned_at - self.created_at
+            difference = self.returned_at - self.rental.created_at
         days = difference.days + 1
         return days * rate
-
-
-    def __str__(self):
-        return self.book.__str__()
-
