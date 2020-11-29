@@ -102,3 +102,4 @@ class RentalTest(TestCase):
         rental = create_rental(returned_at=tomorrow, force_empty_books =True)
         self.assertTrue(isinstance(rental, Rental))
         self.assertEqual(expected_price, rental.price)
+
