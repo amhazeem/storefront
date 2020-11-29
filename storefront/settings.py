@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'books.apps.BooksConfig',
+    'rentals.apps.RentalsConfig',
 ]
 
 MIDDLEWARE = [
@@ -195,3 +196,41 @@ LOGGING = {
         },
     }
 }
+
+
+import sys
+if 'test' in sys.argv:
+
+    # Use in-memory file storage
+    DEFAULT_FILE_STORAGE = 'inmemorystorage.InMemoryStorage'
+
+    # Speed!
+    PASSWORD_HASHERS = (
+        'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
+    )
+
+    # Fake out migrations to speed up tests
+    # cf. https://mastodon.social/@webology/99162173318389992
+    class DisableMigrations(object):
+
+        def __contains__(self, item):
+            return True
+
+        def __getitem__(self, item):
+            return None
+
+    MIGRATION_MODULES = DisableMigrations()
+
+    # Database
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+            'TEST': {}
+        }
+    }
+
+    # Disable logging
+    import logging
+    logging.disable(logging.CRITICAL)
+
