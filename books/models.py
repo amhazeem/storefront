@@ -1,8 +1,9 @@
 from django.db import models
 
+from shared import TimeStampedModel
 
-# Create your models here.
-class Book(models.Model):
+
+class Book(TimeStampedModel):
     title = models.CharField(max_length=255)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
