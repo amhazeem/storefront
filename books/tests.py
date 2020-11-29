@@ -21,6 +21,10 @@ class BookTest(TestCase):
         create_rental(books=[book])
         book.refresh_from_db()
         self.assertEqual(book.in_stock, 9)
+        book = self.create_book(quantity=10)
+        # We need to create orders
+        book.refresh_from_db()
+        self.assertEqual(book.in_stock, 10)
 
     def test_book_detects_empty_stock(self):
         book = self.create_book(quantity=0)
